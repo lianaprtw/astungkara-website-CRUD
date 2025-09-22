@@ -10,9 +10,11 @@ const Home = () => {
     Phone: "",
     Message: "",
     PublishDate: "",
+    Id:"",
   });
 
   const [guestList, setGuestList] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const getAllguestList = async () => {
     try {
@@ -35,50 +37,81 @@ const Home = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    try {
+const handleSubmit = async () => {
+  try {
+    if (!isUpdating) {
+      // Tambah data
       if (
         !guestForm.GuestName ||
         !guestForm.Address ||
         !guestForm.Phone ||
         !guestForm.Message
       ) {
-        alert("All field's are required");
+        alert("All fields are required");
+        return; // keluar biar gak lanjut
       }
 
       const { data } = await guestBaseUrl.post("/addguest", guestForm);
       if (data?.Success) {
         alert(data?.Message);
+        getAllguestList();
         setGuestForm({
           GuestName: "",
           Address: "",
           Phone: "",
           Message: "",
           PublishDate: "",
+          Id: "",
         });
       }
-      console.log(data);
-    } catch (error) {
-      console.log(error);
+    } else {
+      // Update data
+      const { data } = await guestBaseUrl.put("/updateguest", guestForm);
+      if (data?.Success) {
+        alert(data?.Message);
+        getAllguestList();
+        setGuestForm({
+          GuestName: "",
+          Address: "",
+          Phone: "",
+          Message: "",
+          PublishDate: "",
+          Id: "",
+        });
+        setIsUpdating(false);
+      }
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const handleDelete = async (id) => {
     try {
-      const{data} = await guestBaseUrl.post("deleteguest", {
+      const { data } = await guestBaseUrl.post("deleteguest", {
         Id: id,
       });
 
-      if(data?.Success) {
+      if (data?.Success) {
         alert(data?.Message);
         getAllguestList();
       }
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  console.log("guestForm", guestForm);
+  const handleUpdate = (data) => {
+    setGuestForm({
+      GuestName: data?.GuestName,
+      Address: data?.Address,
+      Phone: data?.Phone,
+      Message: data?.Message,
+      PublishDate: data?.PublishDate,
+      _id: data?._id
+    });
+    setIsUpdating(true);
+  };
 
   return (
     <div className="w-full px-5 min-h-[calc(100vh-60px)]">
@@ -194,12 +227,18 @@ const Home = () => {
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap">
                       <div className="w-20 flex justify-center  gap-5">
-                        <div className="h-8 w-8 flex justify-center items-center bg-red-100 text-red-600 rounded text-lg cursor-pointer" onClick={() => handleDelete(guest._id)}>
+                        <div
+                          className="h-8 w-8 flex justify-center items-center bg-red-100 text-red-600 rounded text-lg cursor-pointer"
+                          onClick={() => handleDelete(guest._id)}
+                        >
                           <span>
                             <MdDelete />
                           </span>
                         </div>
-                        <div className="h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg cursor-pointer">
+                        <div
+                          className="h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg cursor-pointer"
+                          onClick={() => handleUpdate(guest)}
+                        >
                           <span>
                             <FaPen />
                           </span>

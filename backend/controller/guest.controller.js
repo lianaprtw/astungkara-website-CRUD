@@ -65,4 +65,26 @@ const handleGuestDeleteController = async (req, res) => {
     }
 };
 
-module.exports = {handleGuestBookController, handleGuestListController, handleGuestDeleteController};
+const handleGuestUpdateController  = async (req, res) => {
+    try {
+        const body = req.body;
+
+        const updating = await Guest.updateOne({_id: body?._id }, {$set: body});
+
+        if (updating?.acknowledged) {
+            return res.json({
+                Message: "Guest updated successfully!",
+                Success: true, 
+            });
+        }
+    } catch (error) {
+        return res.status(400).json({ Message: error.message, Success: false });
+    }
+};
+
+module.exports = {
+    handleGuestBookController, 
+    handleGuestListController, 
+    handleGuestDeleteController,
+    handleGuestUpdateController
+};
