@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { guestBaseUrl } from "../axiosInstance";
+import { MdDelete } from "react-icons/md";
+import { FaPen } from "react-icons/fa";
 
 const Home = () => {
   const [guestForm, setGuestForm] = useState({
@@ -53,13 +55,28 @@ const Home = () => {
           Phone: "",
           Message: "",
           PublishDate: "",
-        })
+        });
       }
       console.log(data);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleDelete = async (id) => {
+    try {
+      const{data} = await guestBaseUrl.post("deleteguest", {
+        Id: id,
+      });
+
+      if(data?.Success) {
+        alert(data?.Message);
+        getAllguestList();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   console.log("guestForm", guestForm);
 
@@ -157,20 +174,41 @@ const Home = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {
-                guestList?.map((guest, index) => {
-                  return (
-                    <tr className="hover:bg-gray-200" key={index}>
-                      <td className="px-6 py-3 whitespace-nowrap">{guest?.GuestName}</td>
-                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Address}</td>
-                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Phone}</td>
-                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Message}</td>
-                      <td className="px-6 py-3 whitespace-nowrap">{guest?.PublishDate}</td>
-                      <td className="px-6 py-3 whitespace-nowrap">Action</td>
-                    </tr>
-                  )
-                })
-              }
+              {guestList?.map((guest, index) => {
+                return (
+                  <tr className="hover:bg-gray-200" key={index}>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      {guest?.GuestName}
+                    </td>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      {guest?.Address}
+                    </td>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      {guest?.Phone}
+                    </td>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      {guest?.Message}
+                    </td>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      {guest?.PublishDate}
+                    </td>
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      <div className="w-20 flex justify-center  gap-5">
+                        <div className="h-8 w-8 flex justify-center items-center bg-red-100 text-red-600 rounded text-lg cursor-pointer" onClick={() => handleDelete(guest._id)}>
+                          <span>
+                            <MdDelete />
+                          </span>
+                        </div>
+                        <div className="h-8 w-8 flex justify-center items-center bg-green-100 text-green-600 rounded text-lg cursor-pointer">
+                          <span>
+                            <FaPen />
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
