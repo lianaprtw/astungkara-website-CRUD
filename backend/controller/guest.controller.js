@@ -33,4 +33,20 @@ const handleGuestBookController = async (req, res) => {
     }
 };
 
-module.exports = {handleGuestBookController};
+const handleGuestListController = async ( req, res) => {
+    try {
+        const guestList = await Guest.find({});
+        return res
+            .status(200)
+            .json({
+                Message: "All Guest fetched successfully",
+                Success: true, 
+                TotalCount: guestList.length,
+                GuestList: guestList,
+            });
+    } catch (error) {
+        return res.status(400).json({ Message: error.message, Success: false})
+    }
+};
+
+module.exports = {handleGuestBookController, handleGuestListController};

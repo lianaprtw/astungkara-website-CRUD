@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { guestBaseUrl } from "../axiosInstance";
 
 const Home = () => {
@@ -10,24 +10,58 @@ const Home = () => {
     PublishDate: "",
   });
 
+  const [guestList, setGuestList] = useState([]);
+
+  const getAllguestList = async () => {
+    try {
+      const { data } = await guestBaseUrl.get("guestlists");
+      setGuestList(data?.GuestList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllguestList();
+  }, []);
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setGuestForm((prev) => ({
       ...prev,
-      [name]: value, 
+      [name]: value,
     }));
   };
 
   const handleSubmit = async () => {
     try {
-      const data = await guestBaseUrl.post("/addguest", guestForm);
+      if (
+        !guestForm.GuestName ||
+        !guestForm.Address ||
+        !guestForm.Phone ||
+        !guestForm.Message
+      ) {
+        alert("All field's are required");
+      }
+
+      const { data } = await guestBaseUrl.post("/addguest", guestForm);
+      if (data?.Success) {
+        alert(data?.Message);
+        setGuestForm({
+          GuestName: "",
+          Address: "",
+          Phone: "",
+          Message: "",
+          PublishDate: "",
+        })
+      }
       console.log(data);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  console.log('guestForm', guestForm);
+  console.log("guestForm", guestForm);
 
   return (
     <div className="w-full px-5 min-h-[calc(100vh-60px)]">
@@ -89,7 +123,10 @@ const Home = () => {
         </div>
       </div>
       <div className="w-full flex justify-end">
-        <button className="bg-gray-700 text-white h-9 w-22 rounded-md cursor-pointer" onClick={handleSubmit}>
+        <button
+          className="bg-gray-700 text-white h-9 w-22 rounded-md cursor-pointer"
+          onClick={handleSubmit}
+        >
           SUBMIT
         </button>
       </div>
@@ -120,14 +157,20 @@ const Home = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              <tr className="hover:bg-gray-200">
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-                <td className="px-6 py-3 whitespace-nowrap">NAME</td>
-              </tr>
+              {
+                guestList?.map((guest, index) => {
+                  return (
+                    <tr className="hover:bg-gray-200" key={index}>
+                      <td className="px-6 py-3 whitespace-nowrap">{guest?.GuestName}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Address}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Phone}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">{guest?.Message}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">{guest?.PublishDate}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">Action</td>
+                    </tr>
+                  )
+                })
+              }
             </tbody>
           </table>
         </div>
