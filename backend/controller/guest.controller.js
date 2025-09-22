@@ -49,4 +49,20 @@ const handleGuestListController = async ( req, res) => {
     }
 };
 
-module.exports = {handleGuestBookController, handleGuestListController};
+const handleGuestDeleteController = async (req, res) => {
+    const body = req.body;
+    try {
+        const deleted = await Guest.deleteOne({_id: body.Id});
+        if (deleted.acknowledged) {
+            return res.json({
+                Message: "Guest deleted successfully!",
+                Success: true,
+            });
+        }
+    }   catch (error) {
+        return res.status(400).json({ Message: error.message, Success: false})
+
+    }
+};
+
+module.exports = {handleGuestBookController, handleGuestListController, handleGuestDeleteController};
