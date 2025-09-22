@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const databaseConnection = async () => {
-    mongoose.connect("mongodb://localhost:27017/book")
+    mongoose.connect("mongodb://localhost:27017/guest")
     .then(() => {
         console.log("Database connected successfully!");
     })
